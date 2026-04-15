@@ -31,9 +31,9 @@ def render_page_style() -> None:
 def render_hero() -> None:
     st.markdown(
         """
-        <div class="hero">
-          <h2 style="margin:0;">ChainPulse AI - Maritime Route Simulator</h2>
-          <p style="margin:6px 0 0 0;">Choose a scenario, adjust the inputs, and see ETA, delay, and freight cost predictions in real time.</p>
+        <div class="hero" style="padding:10px 16px;">
+          <span style="font-size:1.15rem;font-weight:700;">ChainPulse AI &mdash; Maritime Route Simulator</span>
+          <span style="font-size:0.85rem;margin-left:12px;opacity:0.85;">Choose a scenario, adjust inputs, and get ETA · delay · freight predictions in real time.</span>
         </div>
         """,
         unsafe_allow_html=True,

@@ -48,98 +48,110 @@ def run_app() -> None:
     all_ports = sorted(PORT_REGION.keys())
     corridor_options = sorted(CORRIDOR_OCEAN.keys())
 
-    left, right = st.columns([1.2, 1.1], gap="large")
+    left, right = st.columns([1.1, 1.2], gap="medium")
 
     with left:
-        st.subheader("1) Configure the shipment")
-
-        scenario_name = st.selectbox("Quick mode", options=list(SCENARIOS.keys()), index=0)
+        scenario_name = st.selectbox("Quick scenario", options=list(SCENARIOS.keys()), index=0)
         scenario = SCENARIOS[scenario_name]
 
-        origin_port = st.selectbox("Origin port", options=all_ports, index=7)
-        destination_port = st.selectbox("Destination port", options=all_ports, index=2)
+        tab_ship, tab_risk = st.tabs(["Shipment", "Risk settings"])
 
-        if destination_port == origin_port:
-            st.warning("Origin and destination are the same, which may produce unrealistic simulations.")
+        with tab_ship:
+            c1, c2 = st.columns(2)
+            with c1:
+                origin_port = st.selectbox("Origin port", options=all_ports, index=7)
+            with c2:
+                destination_port = st.selectbox("Destination port", options=all_ports, index=2)
 
-        route_corridor = st.selectbox("Route corridor", options=corridor_options, index=2)
-        ocean_side = CORRIDOR_OCEAN[route_corridor]
-        st.caption(f"Suggested ocean side: {ocean_side}")
+            if destination_port == origin_port:
+                st.warning("Origin and destination are the same.")
 
-        vessel_type = st.selectbox("Vessel type", options=VESSEL_TYPES, index=1)
-        cargo_type = st.selectbox("Cargo type", options=CARGO_TYPES, index=2)
+            route_corridor = st.selectbox("Route corridor", options=corridor_options, index=2)
+            ocean_side = CORRIDOR_OCEAN[route_corridor]
+            st.caption(f"Ocean side: {ocean_side}")
 
-        departure_date = st.date_input("Departure date", value=date.today())
-        departure_hour = st.slider("Departure hour", min_value=0, max_value=23, value=9)
+            c1, c2 = st.columns(2)
+            with c1:
+                vessel_type = st.selectbox("Vessel type", options=VESSEL_TYPES, index=1)
+            with c2:
+                cargo_type = st.selectbox("Cargo type", options=CARGO_TYPES, index=2)
 
-        suggested_distance, suggested_eta = infer_distance_and_eta(
-            dataset, origin_port, destination_port, route_corridor
-        )
+            c1, c2 = st.columns([1.4, 0.6])
+            with c1:
+                departure_date = st.date_input("Departure date", value=date.today())
+            with c2:
+                departure_hour = st.number_input("Hour (UTC)", min_value=0, max_value=23, value=9)
 
-        with st.expander("Advanced adjustments (optional)"):
-            distance_nm = st.number_input(
-                "Voyage distance (nautical miles)",
-                min_value=100.0,
-                max_value=20000.0,
-                value=round(suggested_distance, 1),
-                step=50.0,
-            )
-            baseline_eta_days = st.number_input(
-                "Baseline ETA (days)",
-                min_value=1.0,
-                max_value=120.0,
-                value=round(suggested_eta, 2),
-                step=0.5,
+            suggested_distance, suggested_eta = infer_distance_and_eta(
+                dataset, origin_port, destination_port, route_corridor
             )
 
-        st.subheader("2) Adjust risk settings")
+            with st.expander("Advanced adjustments"):
+                ca, cb = st.columns(2)
+                with ca:
+                    distance_nm = st.number_input(
+                        "Distance (nm)",
+                        min_value=100.0,
+                        max_value=20000.0,
+                        value=round(suggested_distance, 1),
+                        step=50.0,
+                    )
+                with cb:
+                    baseline_eta_days = st.number_input(
+                        "Baseline ETA (days)",
+                        min_value=1.0,
+                        max_value=120.0,
+                        value=round(suggested_eta, 2),
+                        step=0.5,
+                    )
 
-        weather_default = find_default_option_by_risk(WEATHER_RISK_OPTIONS, scenario["weather"])
-        weather_options = list(WEATHER_RISK_OPTIONS.keys())
-        weather_option = st.selectbox(
-            "Weather condition",
-            options=weather_options,
-            index=weather_options.index(weather_default),
-        )
-        weather_label = str(WEATHER_RISK_OPTIONS[weather_option]["risk"])
-        st.caption(f"Applied level: {weather_label}. {WEATHER_RISK_OPTIONS[weather_option]['description']}")
+        with tab_risk:
+            weather_default = find_default_option_by_risk(WEATHER_RISK_OPTIONS, scenario["weather"])
+            weather_options = list(WEATHER_RISK_OPTIONS.keys())
+            weather_option = st.selectbox(
+                "Weather condition",
+                options=weather_options,
+                index=weather_options.index(weather_default),
+            )
+            weather_label = str(WEATHER_RISK_OPTIONS[weather_option]["risk"])
+            st.caption(f"Level: {weather_label} — {WEATHER_RISK_OPTIONS[weather_option]['description']}")
 
-        port_default = find_default_option_by_risk(PORT_RISK_OPTIONS, scenario["port"])
-        port_options = list(PORT_RISK_OPTIONS.keys())
-        port_option = st.selectbox(
-            "Port status",
-            options=port_options,
-            index=port_options.index(port_default),
-        )
-        port_label = str(PORT_RISK_OPTIONS[port_option]["risk"])
-        st.caption(f"Applied level: {port_label}. {PORT_RISK_OPTIONS[port_option]['description']}")
+            port_default = find_default_option_by_risk(PORT_RISK_OPTIONS, scenario["port"])
+            port_options = list(PORT_RISK_OPTIONS.keys())
+            port_option = st.selectbox(
+                "Port status",
+                options=port_options,
+                index=port_options.index(port_default),
+            )
+            port_label = str(PORT_RISK_OPTIONS[port_option]["risk"])
+            st.caption(f"Level: {port_label} — {PORT_RISK_OPTIONS[port_option]['description']}")
 
-        geo_default = find_default_option_by_risk(GEOPOLITICAL_RISK_OPTIONS, scenario["geo"])
-        geo_options = list(GEOPOLITICAL_RISK_OPTIONS.keys())
-        geo_option = st.selectbox(
-            "Geopolitical event by location",
-            options=geo_options,
-            index=geo_options.index(geo_default),
-        )
-        geo_config = GEOPOLITICAL_RISK_OPTIONS[geo_option]
-        geo_label = str(geo_config["risk"])
-        st.caption(f"Applied level: {geo_label}. {geo_config['description']}")
+            geo_default = find_default_option_by_risk(GEOPOLITICAL_RISK_OPTIONS, scenario["geo"])
+            geo_options = list(GEOPOLITICAL_RISK_OPTIONS.keys())
+            geo_option = st.selectbox(
+                "Geopolitical event",
+                options=geo_options,
+                index=geo_options.index(geo_default),
+            )
+            geo_config = GEOPOLITICAL_RISK_OPTIONS[geo_option]
+            geo_label = str(geo_config["risk"])
+            st.caption(f"Level: {geo_label} — {geo_config['description']}")
 
-        if geo_option != "No relevant incident":
-            route_match = route_corridor in geo_config["corridors"]
-            origin_region = PORT_REGION[origin_port]
-            destination_region = PORT_REGION[destination_port]
-            region_match = origin_region in geo_config["regions"] or destination_region in geo_config["regions"]
+            if geo_option != "No relevant incident":
+                route_match = route_corridor in geo_config["corridors"]
+                origin_region = PORT_REGION[origin_port]
+                destination_region = PORT_REGION[destination_port]
+                region_match = origin_region in geo_config["regions"] or destination_region in geo_config["regions"]
 
-            if route_match or region_match:
-                st.warning("This geopolitical event is relevant to the selected route. Impact can be significant.")
-            else:
-                st.info("This geopolitical event has low relevance for the selected route.")
+                if route_match or region_match:
+                    st.warning("This geopolitical event is relevant to the selected route.")
+                else:
+                    st.info("Low relevance for the selected route.")
 
         run_prediction = st.button("Predict route impact", type="primary", use_container_width=True)
 
     with right:
-        st.subheader("3) Map and predictions")
+        st.subheader("Map & Predictions")
 
         if run_prediction:
             departure_dt = datetime.combine(departure_date, time(hour=departure_hour))
