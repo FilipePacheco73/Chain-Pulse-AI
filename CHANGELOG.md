@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] - 2026-04-15
+
+### Changed
+
+**UI Compactness and Navigation**
+- Replaced tall hero banner (`<h2>` + `<p>`) with a single-line inline header bar to reduce vertical whitespace
+- Split left panel into two tabs — **Shipment** and **Risk settings** — eliminating the need to scroll between configuration sections
+- Paired related inputs side-by-side: origin/destination ports, vessel type/cargo type, departure date/hour
+- Placed the two advanced-adjustment fields (distance and baseline ETA) in two columns inside the expander
+- Reduced column gap from `large` to `medium` and redistributed column widths for better balance
+- Changed departure-hour input from a slider to a `number_input` to save vertical space
+- Shortened label and caption copy for compactness throughout `app/main.py` and `app/layout.py`
+
+---
+
 ## [0.2.0] - 2026-04-14
 
 ### Added
