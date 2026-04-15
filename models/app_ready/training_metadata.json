@@ -1,0 +1,83 @@
+{
+  "random_state": 42,
+  "base_features": [
+    "departure_timestamp",
+    "origin_port",
+    "destination_port",
+    "origin_region",
+    "destination_region",
+    "route_corridor",
+    "ocean_side",
+    "vessel_type",
+    "cargo_type",
+    "distance_nm",
+    "baseline_eta_days",
+    "weather_risk_level",
+    "port_congestion_level",
+    "geopolitical_risk_level"
+  ],
+  "numeric_features_after_time_expansion": [
+    "distance_nm",
+    "baseline_eta_days",
+    "weather_risk_level",
+    "port_congestion_level",
+    "geopolitical_risk_level",
+    "departure_month",
+    "departure_dayofweek",
+    "departure_hour"
+  ],
+  "categorical_features": [
+    "origin_port",
+    "destination_port",
+    "origin_region",
+    "destination_region",
+    "route_corridor",
+    "ocean_side",
+    "vessel_type",
+    "cargo_type"
+  ],
+  "regression_targets": [
+    "expected_delay_days",
+    "adjusted_eta_days",
+    "freight_cost_index"
+  ],
+  "classification_target": "delay_class",
+  "regression_metrics": [
+    {
+      "target": "expected_delay_days",
+      "mae": 0.1801,
+      "rmse": 0.2412,
+      "r2": 0.9481
+    },
+    {
+      "target": "adjusted_eta_days",
+      "mae": 0.1802,
+      "rmse": 0.2412,
+      "r2": 0.9989
+    },
+    {
+      "target": "freight_cost_index",
+      "mae": 0.0064,
+      "rmse": 0.0112,
+      "r2": 0.9565
+    }
+  ],
+  "classification_metrics": [
+    {
+      "target": "delay_class",
+      "accuracy": 0.9025,
+      "macro_f1": 0.8666
+    }
+  ],
+  "risk_level_mapping": {
+    "weather_risk_level": "0=low/none, 1=light, 2=moderate, 3=high",
+    "port_congestion_level": "0=low, 1=light, 2=moderate, 3=high",
+    "geopolitical_risk_level": "0=none, 1=low, 2=medium, 3=high"
+  },
+  "saved_model_paths": {
+    "expected_delay_days": "C:\\Users\\filip\\GitHub\\Chain-Pulse-AI\\models\\app_ready\\expected_delay_days_pipeline.joblib",
+    "adjusted_eta_days": "C:\\Users\\filip\\GitHub\\Chain-Pulse-AI\\models\\app_ready\\adjusted_eta_days_pipeline.joblib",
+    "freight_cost_index": "C:\\Users\\filip\\GitHub\\Chain-Pulse-AI\\models\\app_ready\\freight_cost_index_pipeline.joblib",
+    "delay_class": "C:\\Users\\filip\\GitHub\\Chain-Pulse-AI\\models\\app_ready\\delay_class_pipeline.joblib"
+  }
+}
