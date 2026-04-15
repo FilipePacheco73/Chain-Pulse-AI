@@ -157,6 +157,14 @@ Each training flow writes a `training_metadata.json` file containing:
 
 ```text
 Chain-Pulse-AI/
+  app/
+    __init__.py
+    main.py
+    constants.py
+    modeling.py
+    data_utils.py
+    visuals.py
+    layout.py
   data/
     processed/
       synthetic_shipments.csv
@@ -172,6 +180,7 @@ Chain-Pulse-AI/
     synthetic_shipping_scenarios.ipynb
     train_baseline_models.ipynb
     train_app_ready_models.ipynb
+  app.py
   CHANGELOG.md
   LICENSE
   README.md
@@ -238,6 +247,8 @@ Recommended use:
 - Pandas
 - NumPy
 - scikit-learn
+- Streamlit
+- Plotly
 - Jupyter Notebook
 - joblib
 
@@ -248,11 +259,51 @@ Pinned package versions are listed in `requirements.txt`.
 - `README.md`: current project overview, workflow, and artifact layout
 - `CHANGELOG.md`: notable repository changes using the Keep a Changelog format
 
-## Natural Next Steps
+## Streamlit App
 
-- build an inference layer to load pipelines and predict from a single payload;
-- create the Streamlit interface with route controls and risk sliders;
-- replace part of the synthetic features with operational signals that are closer to a real-world scenario.
+The repository now includes a guided Streamlit interface organized under `app/`.
+
+Suggested module layout:
+
+- `app/main.py`: app entrypoint and page flow
+- `app/constants.py`: domain constants and option catalogs
+- `app/modeling.py`: model loading, payload build, and labels
+- `app/data_utils.py`: dataset loading and helper rules
+- `app/visuals.py`: map and gauge rendering
+- `app/layout.py`: style and hero section
+- `app.py`: compatibility wrapper entrypoint
+
+Main app capabilities:
+
+- predefined user choices (ports, corridors, vessel, cargo, and scenario presets);
+- risk controls using simplified labels (`Low`, `Minor`, `Moderate`, `High`);
+- scenario-based geopolitical event selection by route relevance;
+- prediction of:
+  - `expected_delay_days`
+  - `adjusted_eta_days`
+  - `freight_cost_index`
+  - `delay_class`
+- dynamic world map that changes route color/thickness based on predicted delay profile;
+- visual delay intensity gauge.
+
+### Run the app
+
+```bash
+pip install -r requirements.txt
+streamlit run app/main.py
+```
+
+Compatibility option:
+
+```bash
+streamlit run app.py
+```
+
+If `streamlit` is not found in your terminal PATH, use:
+
+```bash
+python -m streamlit run app/main.py
+```
 
 ## License
 
